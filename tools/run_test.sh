@@ -16,7 +16,7 @@ PYTHONPATH="${DIR}/../third_party:${DIR}/../third_party/3.6-only:${PYTHONPATH}"
 PYTHONPATH="${PYTHONPATH}" pylint leetcode
 
 echo [unittest] Running unit tests ...
-coverage run -m unittest -v -k leetcode.test
+coverage run -m unittest -v
 
 echo [coverage] Reporting coverage ...
 coverage report || (echo Under minimum required coverage && false)
