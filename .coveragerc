@@ -1,0 +1,9 @@
+[run]
+
+source = leetcode
+
+omit = */test/*
+
+[report]
+
+fail_under = 85
