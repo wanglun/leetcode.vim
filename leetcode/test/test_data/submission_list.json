@@ -1,0 +1,55 @@
+{
+    "data": {
+        "submissionList": {
+            "lastKey": null,
+            "hasNext": false,
+            "submissions": [
+                {
+                    "id": "238743927",
+                    "statusDisplay": "Accepted",
+                    "lang": "cpp",
+                    "runtime": "116 ms",
+                    "timestamp": "1561532073",
+                    "url": "/submissions/detail/238743927/",
+                    "isPending": "Not Pending",
+                    "memory": "9.2 MB",
+                    "__typename": "SubmissionDumpNode"
+                },
+                {
+                    "id": "174255672",
+                    "statusDisplay": "Time Limit Exceeded",
+                    "lang": "python3",
+                    "runtime": "N/A",
+                    "timestamp": "1536262893",
+                    "url": "/submissions/detail/174255672/",
+                    "isPending": "Not Pending",
+                    "memory": "N/A",
+                    "__typename": "SubmissionDumpNode"
+                },
+                {
+                    "id": "174255500",
+                    "statusDisplay": "Wrong Answer",
+                    "lang": "python3",
+                    "runtime": "N/A",
+                    "timestamp": "1536262842",
+                    "url": "/submissions/detail/174255500/",
+                    "isPending": "Not Pending",
+                    "memory": "N/A",
+                    "__typename": "SubmissionDumpNode"
+                },
+                {
+                    "id": "69630365",
+                    "statusDisplay": "Accepted",
+                    "lang": "cpp",
+                    "runtime": "760 ms",
+                    "timestamp": "1470584736",
+                    "url": "/submissions/detail/69630365/",
+                    "isPending": "Not Pending",
+                    "memory": "N/A",
+                    "__typename": "SubmissionDumpNode"
+                }
+            ],
+            "__typename": "SubmissionListNode"
+        }
+    }
+}

@@ -1,0 +1,20 @@
+{
+    "code_output": [
+        "ok",
+        "test"
+    ],
+    "status_code": 14,
+    "lang": "python",
+    "run_success": false,
+    "runtime_error": "",
+    "total_correct": null,
+    "total_testcases": null,
+    "status_runtime": "N/A",
+    "runtime_percentile": null,
+    "status_memory": "N/A",
+    "memory_percentile": null,
+    "pretty_lang": "Python",
+    "submission_id": "interpret_1562127209.982348_W0LsQ5HeyA",
+    "status_msg": "Time Limit Exceeded",
+    "state": "SUCCESS"
+}

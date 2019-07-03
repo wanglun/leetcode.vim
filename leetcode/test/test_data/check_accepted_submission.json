@@ -1,0 +1,23 @@
+{
+    "status_code": 10,
+    "code_output": "",
+    "std_output": "",
+    "compare_result": "11111111111111111111111111111",
+    "status_runtime": "112 ms",
+    "memory": 9064000,
+    "display_runtime": "",
+    "question_id": "1",
+    "lang": "cpp",
+    "judge_type": "large",
+    "run_success": true,
+    "finished": true,
+    "total_correct": 29,
+    "total_testcases": 29,
+    "runtime_percentile": 39.703400000000016,
+    "status_memory": "9.1 MB",
+    "memory_percentile": 97.15320000000001,
+    "pretty_lang": "C++",
+    "submission_id": "240397009",
+    "status_msg": "Accepted",
+    "state": "SUCCESS"
+}

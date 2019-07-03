@@ -1,0 +1,22 @@
+{
+    "status_code": 10,
+    "lang": "python",
+    "code_output": [
+        "ok"
+    ],
+    "code_answer": [
+        "[0,1]"
+    ],
+    "status_runtime": "16 ms",
+    "display_runtime": "",
+    "run_success": true,
+    "total_correct": null,
+    "total_testcases": null,
+    "runtime_percentile": null,
+    "status_memory": "N/A",
+    "memory_percentile": null,
+    "pretty_lang": "Python",
+    "submission_id": "interpret_1562126413.656137_MNnWkGER03",
+    "status_msg": "Accepted",
+    "state": "SUCCESS"
+}
