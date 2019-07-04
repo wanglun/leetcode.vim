@@ -13,4 +13,4 @@ install:
   - tools/travis-install.sh
 
 script:
-  - tools/run-test.sh
+  - make test && make integration-test
