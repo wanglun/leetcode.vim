@@ -402,20 +402,20 @@ def test_code(request: SubmissionRequest) -> TestJob:
     log.debug('test_code response body: %s', res.text)
 
     if res.status_code != 200:
-        if 'too fast' in res.text:
+        if res.status_code == 429:
             raise LeetCodeOperationFailureError(messages.TOO_FAST)
         raise LeetCodeOperationFailureError(
             messages.TEST_CODE_FAILURE.format(slug=request.title_slug))
 
     data = res.json()
 
-    testing_request = TestJob(
+    testing_job = TestJob(
         actual_id=data['interpret_id'],
         expected_id=data['interpret_expected_id'],
     )
 
-    log.debug('test_code result: %s', pformat(testing_request))
-    return testing_request
+    log.debug('test_code job: %s', pformat(testing_job))
+    return testing_job
 
 
 def submit_code(request: SubmissionRequest) -> str:
@@ -442,7 +442,7 @@ def submit_code(request: SubmissionRequest) -> str:
     log.debug('submit_code response body: %s', res.text)
 
     if res.status_code != 200:
-        if 'too fast' in res.text:
+        if res.status_code == 429:
             raise LeetCodeOperationFailureError(messages.TOO_FAST)
         raise LeetCodeOperationFailureError(
             messages.SUBMIT_CODE_FAILURE.format(slug=request.title_slug))
