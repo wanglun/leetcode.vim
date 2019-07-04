@@ -5,7 +5,7 @@ from pprint import pformat
 import re
 from typing import List, Any, Union
 
-from leetcode import config
+from leetcode import urls, graphql_queries
 from leetcode import messages
 from leetcode.exception import LeetCodeOperationFailureError
 from leetcode.types import Problem, ProblemState, Difficulty, ProblemDetail, \
@@ -28,8 +28,8 @@ def _check_login():
 def _make_headers():
     assert _session is not None
 
-    headers = {'Origin': config.BASE_URL,
-               'Referer': config.BASE_URL,
+    headers = {'Origin': urls.BASE_URL,
+               'Referer': urls.BASE_URL,
                'X-CSRFToken': _session.cookies['csrftoken'],
                'X-Requested-With': 'XMLHttpRequest'}
 
@@ -39,28 +39,28 @@ def _make_headers():
 def login(username: str, password: str) -> None:
     global _session
 
-    log.info('login init request: GET %s', config.LOGIN_URL)
-    res = _session.get(config.LOGIN_URL)
+    log.info('login init request: GET %s', urls.LOGIN_URL)
+    res = _session.get(urls.LOGIN_URL)
     log.info('login init response: status=%s', res.status_code)
 
     if res.status_code != 200:
         log.error('login failed: %s', res.reason)
         raise LeetCodeOperationFailureError(messages.GET_LOGIN_PAGE_FAILURE)
 
-    headers = {'Origin': config.BASE_URL,
-               'Referer': config.LOGIN_URL}
+    headers = {'Origin': urls.BASE_URL,
+               'Referer': urls.LOGIN_URL}
 
     form = {'csrfmiddlewaretoken': _session.cookies['csrftoken'],
             'login': username,
             'password': password}
 
-    log.info('login request: POST %s headers=%s username=%s', config.LOGIN_URL,
+    log.info('login request: POST %s headers=%s username=%s', urls.LOGIN_URL,
              headers, username)
 
     # requests follows the redirect url by default
     # disable redirection explicitly
     res = _session.post(
-        config.LOGIN_URL,
+        urls.LOGIN_URL,
         data=form,
         headers=headers,
         allow_redirects=False)
@@ -104,7 +104,7 @@ def get_problem_list() -> List[Problem]:
     _check_login()
 
     headers = _make_headers()
-    url = config.PROBLEM_LIST_URL
+    url = urls.PROBLEM_LIST_URL
 
     log.info('get_problem_list request: GET %s headers=%s', url, headers)
 
@@ -151,15 +151,15 @@ def get_problem(title_slug: str) -> ProblemDetail:
     _check_login()
 
     headers = _make_headers()
-    headers['Referer'] = config.PROBLEM_DESCRIPTION_URL.format(slug=title_slug)
-    body = {'query': config.GET_PROBLEM_QUERY,
+    headers['Referer'] = urls.PROBLEM_DESCRIPTION_URL.format(slug=title_slug)
+    body = {'query': graphql_queries.GET_PROBLEM_QUERY,
             'variables': {'titleSlug': title_slug},
             'operationName': 'questionData'}
 
-    log.info('get_problem request: POST %s headers=%s', config.GRAPHQL_URL,
+    log.info('get_problem request: POST %s headers=%s', urls.GRAPHQL_URL,
              headers)
     log.debug('get_problem request body: %s', body)
-    res = _session.post(config.GRAPHQL_URL, json=body, headers=headers)
+    res = _session.post(urls.GRAPHQL_URL, json=body, headers=headers)
     log.info('get_problem response: status=%s', res.status_code)
     log.debug('get_problem response body: %s', res.text)
 
@@ -203,7 +203,7 @@ def get_submission_list(title_slug: str) -> List[Submission]:
     _check_login()
 
     headers = _make_headers()
-    headers['Referer'] = config.SUBMISSION_REFERER_URL.format(slug=title_slug)
+    headers['Referer'] = urls.SUBMISSION_REFERER_URL.format(slug=title_slug)
 
     body = {
         'operationName': 'Submissions',
@@ -213,10 +213,10 @@ def get_submission_list(title_slug: str) -> List[Submission]:
             'lastKey': None,
             'questionSlug': title_slug,
         },
-        'query': config.GET_SUBMISSION_LIST_QUERY,
+        'query': graphql_queries.GET_SUBMISSION_LIST_QUERY,
     }
 
-    url = config.GRAPHQL_URL
+    url = urls.GRAPHQL_URL
 
     log.info('get_submission_list request: POST %s headers=%s', url, headers)
     log.debug('get_submission_list request body: %s', body)
@@ -335,7 +335,7 @@ def get_submission(submission_id: str) -> SubmissionDetail:
     _check_login()
 
     headers = _make_headers()
-    url = config.SUBMISSION_URL.format(submission=submission_id)
+    url = urls.SUBMISSION_URL.format(submission=submission_id)
 
     log.info('get_submission request: GET %s headers=%s', url, headers)
     res = _session.get(url, headers=headers)
@@ -382,7 +382,7 @@ def test_code(request: SubmissionRequest) -> TestJob:
     _check_login()
 
     headers = _make_headers()
-    headers['Referer'] = config.PROBLEM_DESCRIPTION_URL.format(
+    headers['Referer'] = urls.PROBLEM_DESCRIPTION_URL.format(
         slug=request.title_slug)
 
     body = {'data_input': request.data_input,
@@ -391,7 +391,7 @@ def test_code(request: SubmissionRequest) -> TestJob:
             'judge_type': 'small',
             'typed_code': request.code}
 
-    url = config.TEST_URL.format(slug=request.title_slug)
+    url = urls.TEST_URL.format(slug=request.title_slug)
 
     log.info('test_code request: POST %s headers=%s', url, headers)
     log.debug('test_code request body: %s', body)
@@ -422,14 +422,14 @@ def submit_code(request: SubmissionRequest) -> str:
     _check_login()
 
     headers = _make_headers()
-    headers['Referer'] = config.PROBLEM_DESCRIPTION_URL.format(
+    headers['Referer'] = urls.PROBLEM_DESCRIPTION_URL.format(
         slug=request.title_slug)
 
     body = {'lang': request.lang,
             'question_id': request.problem_id,
             'typed_code': request.code}
 
-    url = config.SUBMIT_URL.format(slug=request.title_slug)
+    url = urls.SUBMIT_URL.format(slug=request.title_slug)
 
     log.info('submit_code request: POST %s headers=%s',
              url, headers)
@@ -460,7 +460,7 @@ def retrieve_test_result(test_id: str) -> Union[RunningSubmission, TestResult]:
 
     headers = _make_headers()
 
-    url = config.CHECK_URL.format(submission=test_id)
+    url = urls.CHECK_URL.format(submission=test_id)
 
     log.info('retrieve_test_result request: GET %s headers=%s', url, headers)
 
@@ -501,7 +501,7 @@ def retrieve_submission_result(submission_id: str) \
 
     headers = _make_headers()
 
-    url = config.CHECK_URL.format(submission=submission_id)
+    url = urls.CHECK_URL.format(submission=submission_id)
 
     log.info('retrieve_submission_result request: GET %s headers=%s',
              url, headers)
