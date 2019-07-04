@@ -13,4 +13,4 @@ install:
   - tools/travis-install.sh
 
 script:
-  - tools/run_test.sh
+  - tools/run-test.sh
