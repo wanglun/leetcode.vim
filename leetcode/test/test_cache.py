@@ -15,6 +15,8 @@ class NoCloseIO(io.BytesIO):
         pass
 
 
+@patch('leetcode.cache.os')
+@patch('leetcode.cache.open')
 class CacheTest(unittest.TestCase):
 
     CACHED_DATA = CachedData(
@@ -36,26 +38,18 @@ class CacheTest(unittest.TestCase):
         ]
     )
 
-    @patch('os.remove')
-    @patch('os.access')
-    def test_delete_cache(self, mock_access: MagicMock, mock_remove: MagicMock):
-        mock_access.return_value = True
+    def test_delete_cache(self, _, mock_os: MagicMock):
+        mock_os.access.return_value = True
         cache.delete_cache()
-        mock_remove.assert_called_once()
+        mock_os.remove.assert_called_once()
 
-    @patch('os.remove')
-    @patch('os.access')
-    def test_delete_cache_no_action(self, mock_access: MagicMock,
-                                    mock_remove: MagicMock):
-        mock_access.return_value = False
+    def test_delete_cache_no_action(self, _, mock_os: MagicMock):
+        mock_os.access.return_value = False
         cache.delete_cache()
-        mock_remove.assert_not_called()
+        mock_os.remove.assert_not_called()
 
-    @patch('os.access')
-    @patch('leetcode.cache.open')
-    def test_load_problem_list(self, mock_open: MagicMock,
-                               mock_access: MagicMock):
-        mock_access.return_value = True
+    def test_load_problem_list(self, mock_open: MagicMock, mock_os: MagicMock):
+        mock_os.access.return_value = True
         cache_file = io.BytesIO(
             pickle.dumps(self.CACHED_DATA,
                          protocol=pickle.HIGHEST_PROTOCOL))
@@ -66,19 +60,14 @@ class CacheTest(unittest.TestCase):
         self.assertEqual(len(problem_list), 1)
         self.assertEqual(problem_list[0].title_slug, 'three-sum')
 
-    @patch('os.access')
-    def test_load_problem_list_no_file(self, mock_access: MagicMock):
-        mock_access.return_value = False
+    def test_load_problem_list_no_file(self, _, mock_os: MagicMock):
+        mock_os.access.return_value = False
         problem_list = cache.load_problem_list()
         self.assertEqual(problem_list, None)
 
-    @patch('os.remove')
-    @patch('os.access')
-    @patch('leetcode.cache.open')
     def test_load_problem_list_expired(self, mock_open: MagicMock,
-                                       mock_access: MagicMock,
-                                       mock_remove: MagicMock):
-        mock_access.return_value = True
+                                       mock_os: MagicMock):
+        mock_os.access.return_value = True
 
         cached_data = deepcopy(self.CACHED_DATA)
         cached_data.expired_at = datetime.now() - timedelta(days=1)
@@ -89,15 +78,10 @@ class CacheTest(unittest.TestCase):
 
         problem_list = cache.load_problem_list()
         self.assertEqual(problem_list, None)
-        mock_remove.assert_called_once()
+        mock_os.remove.assert_called_once()
 
-    @patch('os.makedirs')
-    @patch('os.access')
-    @patch('leetcode.cache.open')
-    def test_save_problem_list(self, mock_open: MagicMock,
-                               mock_access: MagicMock,
-                               mock_makedirs: MagicMock):
-        mock_access.return_value = False
+    def test_save_problem_list(self, mock_open: MagicMock, mock_os: MagicMock):
+        mock_os.access.return_value = False
 
         cache_file = NoCloseIO()
         mock_open.return_value = cache_file
@@ -105,7 +89,7 @@ class CacheTest(unittest.TestCase):
         assert self.CACHED_DATA.problem_list is not None
         cache.save_problem_list(self.CACHED_DATA.problem_list)
 
-        mock_makedirs.assert_called_once()
+        mock_os.makedirs.assert_called_once()
 
         cached_data: CachedData = pickle.loads(cache_file.getvalue())
 

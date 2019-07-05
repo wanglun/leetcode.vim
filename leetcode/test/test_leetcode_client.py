@@ -17,16 +17,15 @@ class MockResponse:
     text: str
 
 
+@patch('leetcode.leetcode_client._session')
 class LeetCodeClientTest(unittest.TestCase):
 
-    @patch('leetcode.leetcode_client._session')
     def test_login(self, mock_session: MagicMock):
         mock_session.get.return_value.status_code = 200
         mock_session.post.return_value.status_code = 302
 
         leetcode_client.login('user', 'pass')
 
-    @patch('leetcode.leetcode_client._session')
     def test_login_error(self, mock_session: MagicMock):
         mock_session.get.return_value.status_code = 200
         mock_session.post.return_value.status_code = 400
@@ -34,7 +33,6 @@ class LeetCodeClientTest(unittest.TestCase):
         self.assertRaises(LeetCodeOperationFailureError,
                           lambda: leetcode_client.login('user', 'pass'))
 
-    @patch('leetcode.leetcode_client._session')
     def test_get_problem_list(self, mock_session: MagicMock):
         api_problems_all = load_test_json('api_problems_all.json')
 
@@ -62,7 +60,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(problem, expected_problem)
 
-    @patch('leetcode.leetcode_client._session')
     def test_get_problem(self, mock_session: MagicMock):
         question_data = load_test_json('question.json')
         question = question_data['data']['question']
@@ -92,7 +89,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(problem, expected_problem)
 
-    @patch('leetcode.leetcode_client._session')
     def test_get_submission_list(self, mock_session: MagicMock):
         submission_list_data = load_test_json('submission_list.json')
 
@@ -112,7 +108,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(submission_list[0], expected_submission)
 
-    @patch('leetcode.leetcode_client._session')
     def test_get_accepted_submission(self, mock_session: MagicMock):
         submission_data = load_test_data('accepted_submission.html')
 
@@ -139,7 +134,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(submission, expected_submission)
 
-    @patch('leetcode.leetcode_client._session')
     def test_get_wrong_submission(self, mock_session: MagicMock):
         submission_data = load_test_data('wrong_submission.html')
 
@@ -166,7 +160,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(submission, expected_submission)
 
-    @patch('leetcode.leetcode_client._session')
     def test_test_code(self, mock_session: MagicMock):
         test_job_data = load_test_json('test_job.json')
 
@@ -201,7 +194,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(test_job, expected_test_job)
 
-    @patch('leetcode.leetcode_client._session')
     def test_submit_code(self, mock_session: MagicMock):
         expected_id = 1234567
 
@@ -231,7 +223,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(submission_id, str(expected_id))
 
-    @patch('leetcode.leetcode_client._session')
     def test_retrieve_pending_test_result(self, mock_session: MagicMock):
         mock_session.get.return_value.status_code = 200
         mock_session.get.return_value.json.return_value = {'state': 'PENDING'}
@@ -240,7 +231,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(result, RunningSubmission(state='PENDING'))
 
-    @patch('leetcode.leetcode_client._session')
     def test_retrieve_started_test_result(self, mock_session: MagicMock):
         mock_session.get.return_value.status_code = 200
         mock_session.get.return_value.json.return_value = {'state': 'STARTED'}
@@ -249,7 +239,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(result, RunningSubmission(state='STARTED'))
 
-    @patch('leetcode.leetcode_client._session')
     def test_retrieve_good_test_result(self, mock_session: MagicMock):
         check_data = load_test_json('check_good_test.json')
 
@@ -268,7 +257,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-    @patch('leetcode.leetcode_client._session')
     def test_retrieve_compile_error_test_result(self, mock_session: MagicMock):
         check_data = load_test_json('check_compile_error_test.json')
 
@@ -287,7 +275,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-    @patch('leetcode.leetcode_client._session')
     def test_retrieve_timeout_test_result(self, mock_session: MagicMock):
         check_data = load_test_json('check_timeout_test.json')
 
@@ -306,7 +293,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-    @patch('leetcode.leetcode_client._session')
     def test_retrieve_wrong_answer_submission_result(
             self, mock_session: MagicMock):
 
@@ -331,7 +317,6 @@ class LeetCodeClientTest(unittest.TestCase):
 
         self.assertEqual(result, expected_result)
 
-    @patch('leetcode.leetcode_client._session')
     def test_retrieve_accepted_submission_result(self, mock_session: MagicMock):
         check_data = load_test_json('check_accepted_submission.json')
 
