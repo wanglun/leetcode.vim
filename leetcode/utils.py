@@ -32,3 +32,17 @@ def to_plain(obj: Any) -> PlainType:
         result[to_plain(key)] = to_plain(value)
 
     return result
+
+
+def wrap_call(api, *args, **kwargs):
+    try:
+        result = api(*args, **kwargs)
+        return {
+            'status': 'ok',
+            'body': to_plain(result),
+        }
+    except Exception as exn:  # pylint: disable=W0703
+        return {
+            'status': 'error',
+            'body': str(exn),
+        }

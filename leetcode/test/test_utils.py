@@ -1,6 +1,6 @@
 import unittest
 
-from leetcode.types import Problem, Difficulty, ProblemState, \
+from leetcode.problem import Problem, Difficulty, ProblemState, \
     TimePeriodFrequency
 from leetcode.utils import to_plain
 
@@ -28,7 +28,7 @@ class UtilsTest(unittest.TestCase):
         'title_slug': 'some-title',
         'paid_only': False,
         'ac_rate': 0.25,
-        'difficulty': 'MEDIUM',
+        'difficulty': 'Medium',
         'frequency': None,
         'time_period_frequency': {
             'six_months': 0.3,
@@ -54,7 +54,7 @@ class UtilsTest(unittest.TestCase):
         self.assertEqual(to_plain({'a': 1, None: 3.5}), {'a': 1, None: 3.5})
 
     def test_enum_to_plain(self):
-        self.assertEqual(to_plain(Difficulty.HARD), 'HARD')
+        self.assertEqual(to_plain(Difficulty.HARD), 'Hard')
 
     def test_dataclass_to_plain(self):
         self.assertEqual(to_plain(self.COMPLEX.time_period_frequency),

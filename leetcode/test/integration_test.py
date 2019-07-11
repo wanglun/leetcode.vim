@@ -2,10 +2,11 @@ from functools import wraps
 import time
 import unittest
 
-from leetcode import leetcode_client, messages
+import leetcode
 from leetcode.exception import LeetCodeOperationFailureError
-from leetcode.types import Difficulty, TestResult, SubmissionRequest, \
-    SubmissionResult
+from leetcode.problem import Difficulty
+from leetcode.run_code import TestResult, SubmissionRequest, SubmissionResult, \
+    SubmissionStatus
 
 
 def retry_if_too_fast(test_method):
@@ -18,7 +19,7 @@ def retry_if_too_fast(test_method):
                 time.sleep(5)
                 return test_method(*args, **kwargs)
             except LeetCodeOperationFailureError as exn:
-                if messages.TOO_FAST in str(exn):
+                if 'too fast' in str(exn):
                     retry_count += 1
                 else:
                     raise exn
@@ -26,7 +27,7 @@ def retry_if_too_fast(test_method):
     return wrapped_test_method
 
 
-class LeetCodeClientIntegrationTest(unittest.TestCase):
+class LeetCodeIntegrationTest(unittest.TestCase):
 
     USERNAME = 'travisjohn'
     PASSWORD = 'bexqaf-zokric-3nEzfi'
@@ -64,13 +65,12 @@ class Solution(object):
     WRONG_ANSWER = ['[3,3]']
 
 
-
     @classmethod
     def setUpClass(cls):
-        leetcode_client.login(cls.USERNAME, cls.PASSWORD)
+        leetcode.login(cls.USERNAME, cls.PASSWORD)
 
     def test_get_problem_list(self):
-        problem_list = leetcode_client.get_problem_list()
+        problem_list = leetcode.get_problem_list()
 
         self.assertTrue(len(problem_list) > 0)
 
@@ -87,7 +87,7 @@ class Solution(object):
         self.assertTrue(found)
 
     def test_get_problem(self):
-        problem = leetcode_client.get_problem('two-sum')
+        problem = leetcode.get_problem('two-sum')
         self.assertEqual(problem.title, 'Two Sum')
         self.assertEqual(problem.question_id, '1')
         self.assertEqual(problem.difficulty, Difficulty.EASY)
@@ -95,7 +95,7 @@ class Solution(object):
         self.assertIn('cpp', problem.templates)
 
     def test_get_submission_list(self):
-        submission_list = leetcode_client.get_submission_list('two-sum')
+        submission_list = leetcode.get_submission_list('two-sum')
 
         self.assertTrue(len(submission_list) > 0)
 
@@ -104,7 +104,7 @@ class Solution(object):
         for submission in submission_list:
             if submission.id == '240646655':
                 self.assertEqual(submission.lang, 'python')
-                self.assertEqual(submission.status, 'Accepted')
+                self.assertEqual(submission.status, SubmissionStatus.ACCEPTED)
                 self.assertEqual(submission.runtime, '4768 ms')
                 self.assertEqual(submission.memory, '12.8 MB')
                 found = True
@@ -113,14 +113,14 @@ class Solution(object):
         self.assertTrue(found)
 
     def test_get_submission(self):
-        submission = leetcode_client.get_submission('240646655')
+        submission = leetcode.get_submission('240646655')
 
         self.assertEqual(submission.id, '240646655')
         self.assertEqual(submission.lang, 'python')
         self.assertEqual(submission.problem_id, '1')
         self.assertEqual(submission.passed, '29')
         self.assertEqual(submission.total, '29')
-        self.assertEqual(submission.status, 'Accepted')
+        self.assertEqual(submission.status, SubmissionStatus.ACCEPTED)
         self.assertEqual(submission.runtime, '4768 ms')
         self.assertGreater(submission.runtime_percentile, 10)
         self.assertLess(submission.runtime_percentile, 40)
@@ -129,7 +129,7 @@ class Solution(object):
         retry_count = 0
 
         while retry_count < self.MAX_RETRY_COUNT:
-            result = leetcode_client.retrieve_test_result(job_id)
+            result = leetcode.retrieve_test_result(job_id)
 
             if isinstance(result, TestResult):
                 return result
@@ -151,16 +151,16 @@ class Solution(object):
 
         time.sleep(3)
 
-        test_job = leetcode_client.test_code(request)
+        test_job = leetcode.test_code(request)
 
         result = self._poll_test_result(test_job.actual_id)
-        self.assertEqual(result.status, 'Accepted')
+        self.assertEqual(result.status, SubmissionStatus.ACCEPTED)
         self.assertEqual(result.answer, self.CORRECT_ANSWER)
         self.assertEqual(result.stdout, [])
         self.assertEqual(result.errors, [])
 
         expected = self._poll_test_result(test_job.expected_id)
-        self.assertEqual(expected.status, 'Accepted')
+        self.assertEqual(expected.status, SubmissionStatus.ACCEPTED)
         self.assertEqual(expected.answer, self.CORRECT_ANSWER)
         self.assertEqual(expected.stdout, [])
         self.assertEqual(result.errors, [])
@@ -175,10 +175,10 @@ class Solution(object):
             code=self.SYNTAX_ERROR_CODE,
         )
 
-        test_job = leetcode_client.test_code(request)
+        test_job = leetcode.test_code(request)
 
         result = self._poll_test_result(test_job.actual_id)
-        self.assertEqual(result.status, 'Compile Error')
+        self.assertEqual(result.status, SubmissionStatus.COMPILE_ERROR)
         self.assertEqual(result.answer, [])
         self.assertEqual(result.stdout, [])
 
@@ -201,11 +201,11 @@ class Solution(object):
             code=self.WRONG_ANSWER_CODE,
         )
 
-        test_job = leetcode_client.test_code(request)
+        test_job = leetcode.test_code(request)
 
         result = self._poll_test_result(test_job.actual_id)
         # The status is Accepted even if the answer is wrong.
-        self.assertEqual(result.status, 'Accepted')
+        self.assertEqual(result.status, SubmissionStatus.ACCEPTED)
         self.assertEqual(result.answer, self.WRONG_ANSWER)
         self.assertEqual(result.stdout, [])
         self.assertEqual(result.errors, [])
@@ -214,7 +214,7 @@ class Solution(object):
         retry_count = 0
 
         while retry_count < self.MAX_RETRY_COUNT:
-            result = leetcode_client.retrieve_submission_result(submission_id)
+            result = leetcode.retrieve_submission_result(submission_id)
 
             if isinstance(result, SubmissionResult):
                 return result
@@ -234,11 +234,11 @@ class Solution(object):
             code=self.ACCEPTED_CODE
         )
 
-        submission_id = leetcode_client.submit_code(request)
+        submission_id = leetcode.submit_code(request)
 
         result = self._poll_submission_result(submission_id)
 
-        self.assertEqual(result.status, 'Accepted')
+        self.assertEqual(result.status, SubmissionStatus.ACCEPTED)
         self.assertIn('ms', result.runtime)
         self.assertIn('MB', result.memory)
         self.assertGreater(result.runtime_percentile, 0)
@@ -256,11 +256,11 @@ class Solution(object):
             code=self.WRONG_ANSWER_CODE,
         )
 
-        submission_id = leetcode_client.submit_code(request)
+        submission_id = leetcode.submit_code(request)
 
         result = self._poll_submission_result(submission_id)
 
-        self.assertEqual(result.status, 'Wrong Answer')
+        self.assertEqual(result.status, SubmissionStatus.WRONG_ANSWER)
         self.assertEqual('N/A', result.runtime)
         self.assertEqual('N/A', result.memory)
         self.assertNotEqual(result.expected_answer, result.actual_answer)
