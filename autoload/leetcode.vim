@@ -38,7 +38,7 @@ function! s:LoadSessionCookie() abort
        return v:false
     endif
 
-    let success = py3eval('leetcode.load_session_cookie("' . g:leetcode_browser . '")')
+    let success = py3eval('leetcode.load_session_cookie("' . g:leetcode_browser . '", "'. g:leetcode_cookie_file . '")')
     if success
        echo 'Signed in.'
     endif

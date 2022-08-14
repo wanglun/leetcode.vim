@@ -8,6 +8,10 @@ if !exists('g:leetcode_browser')
     let g:leetcode_browser = 'disabled'
 endif
 
+if !exists('g:leetcode_cookie_file')
+    let g:leetcode_cookie_file = ''
+endif
+
 if !exists('g:leetcode_categories')
     let g:leetcode_categories = ['algorithms']
 endif

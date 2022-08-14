@@ -157,7 +157,7 @@ def get_progress():
     return data
 
 
-def load_session_cookie(browser):
+def load_session_cookie(browser, cookie_file=''):
     if browser_cookie3 is None:
         _echoerr('browser_cookie3 not installed: pip3 install browser_cookie3 --user')
         return False
@@ -167,7 +167,8 @@ def load_session_cookie(browser):
 
     session_cookie_raw = keyring.get_password('leetcode.vim', 'SESSION_COOKIE')
     if session_cookie_raw is None:
-        cookies = getattr(browser_cookie3, browser)(domain_name=LC_BASE.split('/')[-1])
+        cookies = getattr(browser_cookie3, browser)(cookie_file=cookie_file,
+                domain_name=LC_BASE.split('/')[-1])
         for cookie in cookies:
             if cookie.name == 'LEETCODE_SESSION':
                 session_cookie = cookie
